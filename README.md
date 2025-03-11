@@ -46,7 +46,7 @@ Where:
 Each **old aircraft incurs maintenance costs** that grow at **5% annually**:
 
 \[
-C_t = C_1 (1 + g)^{t-1}
+C_t = C_1 \cdot (1 + g)^{t-1}
 \]
 
 Where:
@@ -56,7 +56,7 @@ Where:
 For all **50 aircraft**:
 
 \[
-NPV_{old} = \sum_{t=1}^{10} \frac{50 \times 2,000,000(1.05)^{t-1}}{(1.08)^t}
+NPV_{old} = \sum_{t=1}^{10} \frac{50 \times 2,000,000 \times (1.05)^{t-1}}{(1.08)^t}
 \]
 
 **Computed Result:**  
@@ -70,13 +70,13 @@ New aircraft generate **cost savings** from:
 Total savings per aircraft per year:
 
 \[
-C_t = 3,000,000 + 2,000,000(1.05)^{t-1}
+C_t = 3,000,000 + 2,000,000 \times (1.05)^{t-1}
 \]
 
 For all **50 aircraft**:
 
 \[
-NPV_{new} = - (50 \times 120,000,000) + \sum_{t=1}^{10} \frac{50 \times (3,000,000 + 2,000,000(1.05)^{t-1})}{(1.08)^t}
+NPV_{new} = - (50 \times 120,000,000) + \sum_{t=1}^{10} \frac{50 \times (3,000,000 + 2,000,000 \times (1.05)^{t-1})}{(1.08)^t}
 \]
 
 **Computed Result:**  
@@ -91,7 +91,7 @@ The **IRR** is the discount rate \( r \) that makes \( NPV = 0 \):
 
 Where:
 - \( C_0 = 50 \times 120,000,000 \) USD (initial investment)
-- \( C_t = 50 \times (3,000,000 + 2,000,000(1.05)^{t-1}) \) (annual savings)
+- \( C_t = 50 \times (3,000,000 + 2,000,000 \times (1.05)^{t-1}) \) (annual savings)
 - Solve for \( r \)
 
 **Computed Result:**  
@@ -107,7 +107,7 @@ Break-even occurs when **cumulative savings exceed the initial investment**:
 \]
 
 Where:
-- \( C_t = 50 \times (3,000,000 + 2,000,000(1.05)^{t-1}) \) (cost savings per year)
+- \( C_t = 50 \times (3,000,000 + 2,000,000 \times (1.05)^{t-1}) \) (cost savings per year)
 - Solve for the first year \( T \) where savings exceed \( C_0 \).
 
 ---

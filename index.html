@@ -55,7 +55,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 370px 1fr;
       gap: 1.5rem;
       align-items: start;
     }
@@ -121,6 +121,75 @@
       font-size: 0.9rem;
       color: var(--primary);
       font-variant-numeric: tabular-nums;
+      transition: color 0.2s;
+    }
+
+    .param-row .val.in-range { color: #059669; }
+    .param-row .val.near-range { color: #d97706; }
+    .param-row .val.out-range { color: #dc2626; }
+
+    .range-guide {
+      position: relative;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      margin: 2px 0 0 0;
+    }
+
+    .range-guide .realistic-zone {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #6ee7b7, #34d399);
+      border-radius: 3px;
+      opacity: 0.7;
+    }
+
+    .range-guide .realistic-zone::before,
+    .range-guide .realistic-zone::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      width: 2px;
+      height: 10px;
+      background: #059669;
+      border-radius: 1px;
+    }
+
+    .range-guide .realistic-zone::before { left: 0; }
+    .range-guide .realistic-zone::after { right: 0; }
+
+    .param-tip {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.68rem;
+      color: #059669;
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+
+    .param-tip .tip-range {
+      font-weight: 600;
+    }
+
+    .param-tip .tip-source {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: right;
+      max-width: 55%;
+    }
+
+    .param-tip .tip-source a {
+      color: #6366f1;
+      text-decoration: none;
+      border-bottom: 1px dotted #6366f1;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .param-tip .tip-source a:hover {
+      color: #4338ca;
+      border-bottom-style: solid;
     }
 
     .result-banner {
@@ -291,43 +360,68 @@
     <div class="card" id="params-card">
       <h2>Parameters</h2>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="25" data-realistic-hi="35">
         <label>Annual Revenue per Aircraft <span class="unit">M USD</span></label>
         <div class="param-row">
           <input type="range" id="revenue" min="5" max="50" step="0.5" value="15">
           <span class="val" id="revenue-val"></span>
         </div>
+        <div class="range-guide" id="revenue-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: $25&ndash;35M</span>
+          <span class="tip-source"><a href="https://www.prnewswire.com/news-releases/southwest-airlines-reports-fourth-quarter-and-full-year-2024-results-302364072.html" target="_blank">Southwest Airlines 2024 Report</a></span>
+        </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="12" data-realistic-hi="16">
         <label>Fuel Savings <span class="unit">%</span></label>
         <div class="param-row">
           <input type="range" id="fuelSavings" min="0" max="40" step="1" value="20">
           <span class="val" id="fuelSavings-val"></span>
         </div>
+        <div class="range-guide" id="fuelSavings-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: 12&ndash;16%</span>
+          <span class="tip-source"><a href="https://www.flightradar24.com/blog/aviation-explainer-series/737-max-vs-737-ng-a-pilots-perspective/" target="_blank">Flightradar24</a>; <a href="https://simpleflying.com/boeing-737-max-vs-737-800/" target="_blank">Simple Flying</a></span>
+        </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="3.5" data-realistic-hi="5.5">
         <label>Maintenance Cost (Old Fleet) <span class="unit">M USD / aircraft / yr</span></label>
         <div class="param-row">
           <input type="range" id="maintCost" min="0.5" max="8" step="0.1" value="2">
           <span class="val" id="maintCost-val"></span>
         </div>
+        <div class="range-guide" id="maintCost-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: $3.5&ndash;5.5M</span>
+          <span class="tip-source"><a href="https://www.iata.org/contentassets/8437020db31a4717b70677d9b06b1a45/fy2023-mcx-report_public.pdf" target="_blank">IATA MCX FY2023</a> (~$4.59M avg)</span>
+        </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="0.5" data-realistic-hi="4">
         <label>Maintenance Cost Growth Rate <span class="unit">%</span></label>
         <div class="param-row">
           <input type="range" id="maintGrowth" min="0" max="15" step="0.5" value="5">
           <span class="val" id="maintGrowth-val"></span>
         </div>
+        <div class="range-guide" id="maintGrowth-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: 0.5&ndash;4%</span>
+          <span class="tip-source"><a href="https://rand.org/pubs/research_briefs/RB206.html" target="_blank">RAND Corp</a> (age-dependent)</span>
+        </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="6.5" data-realistic-hi="9.5">
         <label>Discount Rate <span class="unit">%</span></label>
         <div class="param-row">
           <input type="range" id="discountRate" min="1" max="20" step="0.5" value="8">
           <span class="val" id="discountRate-val"></span>
+        </div>
+        <div class="range-guide" id="discountRate-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: 6.5&ndash;9.5%</span>
+          <span class="tip-source"><a href="https://revenuefiles.mt.gov/files/DOR-Publications/Capitalization-Rate-Studies/2024/2024-Capitalization-Rate-Study-Airlines-Freight.pdf" target="_blank">Montana DoR 2024</a>; AAL, ATSG WACC</span>
         </div>
       </div>
 
@@ -337,21 +431,35 @@
           <input type="range" id="numAircraft" min="1" max="200" step="1" value="50">
           <span class="val" id="numAircraft-val"></span>
         </div>
+        <div class="param-tip">
+          <span class="tip-range" style="color:var(--text-muted)">Scenario-dependent</span>
+          <span class="tip-source"></span>
+        </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="50" data-realistic-hi="70">
         <label>New Aircraft Cost <span class="unit">M USD each</span></label>
         <div class="param-row">
           <input type="range" id="aircraftCost" min="30" max="180" step="1" value="120">
           <span class="val" id="aircraftCost-val"></span>
         </div>
+        <div class="range-guide" id="aircraftCost-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: $50&ndash;70M</span>
+          <span class="tip-source"><a href="https://simpleflying.com/how-much-boeing-737-max-cost-2026/" target="_blank">Simple Flying</a>; <a href="https://boltflight.com/boeing-737-max-vs-737-ng-unpacking-the-true-cost-and-value-of-each-generation/" target="_blank">Bolt Flight</a></span>
+        </div>
       </div>
 
-      <div class="param-group">
+      <div class="param-group" data-realistic-lo="20" data-realistic-hi="30">
         <label>Max Analysis Horizon <span class="unit">years</span></label>
         <div class="param-row">
           <input type="range" id="maxYears" min="10" max="60" step="1" value="40">
           <span class="val" id="maxYears-val"></span>
+        </div>
+        <div class="range-guide" id="maxYears-guide"><div class="realistic-zone"></div></div>
+        <div class="param-tip">
+          <span class="tip-range">Realistic: 20&ndash;30 yr</span>
+          <span class="tip-source"><a href="https://simpleflying.com/how-much-boeing-737-800-cost-2026/" target="_blank">737-800 lifecycle data</a></span>
         </div>
       </div>
 
@@ -447,8 +555,30 @@ function init() {
     sliders[key].valEl = document.getElementById(key + '-val');
     sliders[key].el.addEventListener('input', onParamChange);
   }
+  renderRangeGuides();
   updateDisplay();
   compute();
+}
+
+function renderRangeGuides() {
+  document.querySelectorAll('.param-group[data-realistic-lo]').forEach(group => {
+    const lo = parseFloat(group.dataset.realisticLo);
+    const hi = parseFloat(group.dataset.realisticHi);
+    const slider = group.querySelector('input[type="range"]');
+    const guide = group.querySelector('.range-guide');
+    if (!slider || !guide) return;
+
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const range = max - min;
+
+    const leftPct = ((lo - min) / range) * 100;
+    const widthPct = ((hi - lo) / range) * 100;
+
+    const zone = guide.querySelector('.realistic-zone');
+    zone.style.left = Math.max(0, leftPct) + '%';
+    zone.style.width = Math.min(100 - leftPct, widthPct) + '%';
+  });
 }
 
 function onParamChange() {
@@ -459,7 +589,27 @@ function onParamChange() {
 function updateDisplay() {
   for (const key of Object.keys(sliders)) {
     const s = sliders[key];
-    s.valEl.textContent = s.fmt(s.el.value);
+    const v = parseFloat(s.el.value);
+    s.valEl.textContent = s.fmt(v);
+
+    const group = s.el.closest('.param-group');
+    if (!group || !group.dataset.realisticLo) {
+      s.valEl.className = 'val';
+      continue;
+    }
+
+    const lo = parseFloat(group.dataset.realisticLo);
+    const hi = parseFloat(group.dataset.realisticHi);
+    const span = hi - lo;
+    const margin = span * 0.25;
+
+    if (v >= lo && v <= hi) {
+      s.valEl.className = 'val in-range';
+    } else if (v >= lo - margin && v <= hi + margin) {
+      s.valEl.className = 'val near-range';
+    } else {
+      s.valEl.className = 'val out-range';
+    }
   }
 }
 

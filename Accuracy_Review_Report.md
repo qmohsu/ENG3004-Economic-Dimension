@@ -27,9 +27,9 @@ This report audits the economic parameters and computations used in the ENG3004 
 - **Typical discounts:** 40--60% off list price for standard orders; bulk orders (e.g., Ryanair's 75-aircraft order) can exceed two-thirds off list price
 
 **Sources:**
-- Simple Flying, "How Much Do Boeing 737 MAX Aircraft Cost In 2026?" (2026)
-- Bolt Flight, "Boeing 737 MAX vs 737 NG: Unpacking the True Cost and Value" (2024)
-- Reuters, "Ryanair buys 75 Boeing MAX jets" (2020) -- confirming deep bulk discounts
+- [Simple Flying, "How Much Do Boeing 737 MAX Aircraft Cost In 2026?" (2026)](https://simpleflying.com/how-much-boeing-737-max-cost-2026/)
+- [Bolt Flight, "Boeing 737 MAX vs 737 NG: Unpacking the True Cost and Value" (2024)](https://boltflight.com/boeing-737-max-vs-737-ng-unpacking-the-true-cost-and-value-of-each-generation/)
+- [Reuters, "Ryanair buys 75 Boeing MAX jets" (2020)](https://www.reuters.com/business/ryanair-buys-75-boeing-max-jets-largest-order-since-grounding-2020-12-04/) -- confirming deep bulk discounts
 
 **Impact:** Using $120M instead of a realistic ~$55--65M inflates the initial investment from ~$2.75--3.25B to $6B, making the project appear roughly twice as expensive as it would be.
 
@@ -48,10 +48,10 @@ This report audits the economic parameters and computations used in the ENG3004 
 - Aerodynamic refinements
 
 **Sources:**
-- Boeing 737 MAX specifications (boeing.com)
-- Simple Flying, "Boeing 737 Max 8 vs 737 800" (2024)
-- Flightradar24, "737 MAX vs 737 NG: A Pilot's Perspective" (2024)
-- AirInsight, "How well are re-engined narrow-body aircraft performing?" (2024)
+- [Boeing 737 MAX specifications (boeing.com)](https://www.boeing.com/commercial/737max/)
+- [Simple Flying, "Boeing 737 Max 8 vs 737 800" (2024)](https://simpleflying.com/boeing-737-max-vs-737-800/)
+- [Flightradar24, "737 MAX vs 737 NG: A Pilot's Perspective" (2024)](https://www.flightradar24.com/blog/aviation-explainer-series/737-max-vs-737-ng-a-pilots-perspective/)
+- [AirInsight, "How well are re-engined narrow-body aircraft performing?" (2024)](https://airinsight.com/how-well-are-re-engined-narrow-body-aircraft-performing/)
 
 **Note:** Boeing and Airbus marketing materials sometimes claim "up to 20%" savings, but this typically refers to the A320neo vs. the *original* A320ceo (not the 737 comparison), or includes operational improvements beyond the airframe alone. The 737 MAX vs. 737-800 comparison is consistently cited at ~14%.
 
@@ -76,9 +76,9 @@ This report audits the economic parameters and computations used in the ENG3004 
 The analysis uses $3.0M per aircraft per year -- approximately **3.7x the realistic figure**.
 
 **Sources:**
-- Bureau of Transportation Statistics (BTS), "U.S. Airlines' July 2024 Fuel Cost per Gallon" (2024)
-- EUROCONTROL Standard Inputs for Economic Analyses, "Aircraft Operating Costs" (2022)
-- Planenerd, "The Fuel Consumption of a Boeing 737" (2024)
+- [Bureau of Transportation Statistics (BTS), "U.S. Airlines' July 2024 Fuel Cost per Gallon" (2024)](https://www.bts.gov/newsroom/us-airlines-july-2024-fuel-cost-gallon-16-june-2024-aviation-fuel-consumption-35-pre)
+- [EUROCONTROL Standard Inputs for Economic Analyses, "Aircraft Operating Costs" (2022)](https://ansperformance.eu/economics/cba/standard-inputs/v10.0.0/chapters/aircraft_operating_costs.html)
+- [Planenerd, "The Fuel Consumption of a Boeing 737" (2024)](https://planenerd.com/boeing-737-fuel-consumption/)
 
 ---
 
@@ -99,8 +99,8 @@ The analysis uses $3.0M per aircraft per year -- approximately **3.7x the realis
 The analysis uses $2M, which is **less than half** the IATA-benchmarked figure.
 
 **Sources:**
-- IATA, "FY2023 Maintenance Cost Experience (MCX) Report" (2024) -- based on 27 airlines, 2,241 aircraft
-- EUROCONTROL, "Aircraft Operating Costs -- Standard Inputs v10.0.0" (2022)
+- [IATA, "FY2023 Maintenance Cost Experience (MCX) Report" (2024)](https://www.iata.org/contentassets/8437020db31a4717b70677d9b06b1a45/fy2023-mcx-report_public.pdf) -- based on 27 airlines, 2,241 aircraft
+- [EUROCONTROL, "Aircraft Operating Costs -- Standard Inputs v10.0.0" (2022)](https://ansperformance.eu/economics/cba/standard-inputs/v10.0.0/chapters/aircraft_operating_costs.html)
 
 ---
 
@@ -116,8 +116,8 @@ The analysis uses $2M, which is **less than half** the IATA-benchmarked figure.
 New aircraft also have maintenance costs (they are not zero). The correct approach would model the **difference** in maintenance costs between old and new fleets, which is modest.
 
 **Sources:**
-- AirInsight, "How well are re-engined narrow-body aircraft performing?" (2024)
-- IATA MCX Report FY2023
+- [AirInsight, "How well are re-engined narrow-body aircraft performing?" (2024)](https://airinsight.com/how-well-are-re-engined-narrow-body-aircraft-performing/)
+- [IATA MCX Report FY2023](https://www.iata.org/contentassets/8437020db31a4717b70677d9b06b1a45/fy2023-mcx-report_public.pdf)
 
 ---
 
@@ -139,8 +139,8 @@ New aircraft also have maintenance costs (they are not zero). The correct approa
 A separate DHS study found **8.0% escalation per year of fleet age** in government fleets. The uniform 5% assumption ignores these age-dependent dynamics.
 
 **Sources:**
-- RAND Corporation, "Older Commercial Aircraft Have Relatively Stable Total Maintenance Costs," Research Brief RB-206 (2002)
-- Defense Acquisition University, "Maintenance Cost Growth in Aging Aircraft," Defense ARJ 101 (2024)
+- [RAND Corporation, "Older Commercial Aircraft Have Relatively Stable Total Maintenance Costs," Research Brief RB-206 (2002)](https://rand.org/pubs/research_briefs/RB206.html)
+- [Defense Acquisition University, "Maintenance Cost Growth in Aging Aircraft," Defense ARJ 101 (2024)](https://www.dau.edu/library/darj/arj-101/arj-101-ross)
 
 ---
 
@@ -154,8 +154,8 @@ A separate DHS study found **8.0% escalation per year of fleet age** in governme
 **Evidence:** Southwest Airlines reported record operating revenue of **$27.5 billion** in 2024 with **847 aircraft**, yielding approximately **$32.5M revenue per aircraft**. Even budget carriers with lower yields operate in the $20--30M range per narrowbody.
 
 **Sources:**
-- Southwest Airlines, "Fourth Quarter and Full Year 2024 Results," PR Newswire (January 2025)
-- Southwest Airlines 2024 Annual Report (southwestairlinesinvestorrelations.com)
+- [Southwest Airlines, "Fourth Quarter and Full Year 2024 Results," PR Newswire (January 2025)](https://www.prnewswire.com/news-releases/southwest-airlines-reports-fourth-quarter-and-full-year-2024-results-302364072.html)
+- [Southwest Airlines 2024 Annual Report](https://www.southwestairlinesinvestorrelations.com/~/media/Files/S/Southwest-IR/southwest-airlines-co-ars-bookmarked-pdf-4265692-2.pdf)
 
 **Note:** While $15M might be plausible for a very small regional carrier or a carrier in a developing market, it is significantly below industry norms for a 50-aircraft narrowbody operator.
 
@@ -180,8 +180,8 @@ A separate DHS study found **8.0% escalation per year of fleet age** in governme
 An 8% rate falls within the 6.5--9.2% range observed across the industry.
 
 **Sources:**
-- Montana Department of Revenue, "2024 Capitalization Rate Study -- Airlines & Freight" (2024)
-- Alpha Spread / ValueInvesting.io WACC calculations for AAL, ATSG
+- [Montana Department of Revenue, "2024 Capitalization Rate Study -- Airlines & Freight" (2024)](https://revenuefiles.mt.gov/files/DOR-Publications/Capitalization-Rate-Studies/2024/2024-Capitalization-Rate-Study-Airlines-Freight.pdf)
+- [Alpha Spread WACC calculation for AAL](https://www.alphaspread.com/security/nasdaq/aal/discount-rate); [ValueInvesting.io WACC for ATSG](https://valueinvesting.io/ATSG/valuation/wacc)
 
 ---
 
@@ -251,14 +251,14 @@ The README states IRR = -11.8% but no computation for IRR is provided in the not
 
 | Parameter | Project Value | Industry-Verified Value | Source | Verdict |
 |---|---|---|---|---|
-| Aircraft price | $120M (list) | ~$55--65M (market) | Simple Flying; Bolt Flight | Overstated ~2x |
-| Fuel savings % | 20% | ~14% | Boeing specs; Flightradar24 | Overstated |
-| Fuel savings basis | % of revenue | % of fuel cost | Conceptual (BTS fuel data) | Fundamental error |
-| Fuel savings $/yr | $3.0M/aircraft | ~$0.81M/aircraft | BTS; EUROCONTROL | Overstated ~3.7x |
-| Maintenance cost | $2.0M/aircraft/yr | ~$4.59M/aircraft/yr | IATA MCX FY2023 | Understated ~2.3x |
-| Maint. escalation | 5%/yr uniform | 0.7--17.6% by age | RAND Corp; DAU | Oversimplified |
-| Revenue/aircraft | $15M/yr | ~$25--35M/yr | Southwest 2024 Annual Report | Understated ~2x |
-| Discount rate | 8% | 6.5--9.2% (WACC) | Montana DoR 2024 | Reasonable |
+| Aircraft price | $120M (list) | ~$55--65M (market) | [Simple Flying](https://simpleflying.com/how-much-boeing-737-max-cost-2026/); [Bolt Flight](https://boltflight.com/boeing-737-max-vs-737-ng-unpacking-the-true-cost-and-value-of-each-generation/) | Overstated ~2x |
+| Fuel savings % | 20% | ~14% | [Boeing specs](https://www.boeing.com/commercial/737max/); [Flightradar24](https://www.flightradar24.com/blog/aviation-explainer-series/737-max-vs-737-ng-a-pilots-perspective/) | Overstated |
+| Fuel savings basis | % of revenue | % of fuel cost | Conceptual ([BTS fuel data](https://www.bts.gov/newsroom/us-airlines-july-2024-fuel-cost-gallon-16-june-2024-aviation-fuel-consumption-35-pre)) | Fundamental error |
+| Fuel savings $/yr | $3.0M/aircraft | ~$0.81M/aircraft | [BTS](https://www.bts.gov/newsroom/us-airlines-july-2024-fuel-cost-gallon-16-june-2024-aviation-fuel-consumption-35-pre); [EUROCONTROL](https://ansperformance.eu/economics/cba/standard-inputs/v10.0.0/chapters/aircraft_operating_costs.html) | Overstated ~3.7x |
+| Maintenance cost | $2.0M/aircraft/yr | ~$4.59M/aircraft/yr | [IATA MCX FY2023](https://www.iata.org/contentassets/8437020db31a4717b70677d9b06b1a45/fy2023-mcx-report_public.pdf) | Understated ~2.3x |
+| Maint. escalation | 5%/yr uniform | 0.7--17.6% by age | [RAND Corp](https://rand.org/pubs/research_briefs/RB206.html); [DAU](https://www.dau.edu/library/darj/arj-101/arj-101-ross) | Oversimplified |
+| Revenue/aircraft | $15M/yr | ~$25--35M/yr | [Southwest 2024 Annual Report](https://www.prnewswire.com/news-releases/southwest-airlines-reports-fourth-quarter-and-full-year-2024-results-302364072.html) | Understated ~2x |
+| Discount rate | 8% | 6.5--9.2% (WACC) | [Montana DoR 2024](https://revenuefiles.mt.gov/files/DOR-Publications/Capitalization-Rate-Studies/2024/2024-Capitalization-Rate-Study-Airlines-Freight.pdf) | Reasonable |
 | NPV_old | $16.37M (50 aircraft) | ~$818M (50 aircraft) | Computation check | Error (1 aircraft, not 50) |
 | Break-even year | 24 | Never (at r=8%) | Computation check | Output uses r~2%, not 8% |
 | IRR | -11.8% | Unverified | No code provided | Unverified |

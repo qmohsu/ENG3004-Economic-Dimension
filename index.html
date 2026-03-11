@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Break-Even Analysis — Aircraft Fleet Modernization</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #dbeafe;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    header p {
+      opacity: 0.85;
+      font-size: 0.95rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .param-group {
+      margin-bottom: 1rem;
+    }
+
+    .param-group label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--text);
+    }
+
+    .param-group label .unit {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .param-group input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .param-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .param-row input[type="range"] { flex: 1; }
+
+    .param-row .val {
+      min-width: 60px;
+      text-align: right;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-banner {
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .result-banner.found {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 1px solid #6ee7b7;
+      color: #065f46;
+    }
+
+    .result-banner.not-found {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+    }
+
+    .result-banner .big {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .result-banner .sub {
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      opacity: 0.8;
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .summary-card .metric {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .summary-card .metric-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 360px;
+      margin-bottom: 1.5rem;
+    }
+
+    .table-wrap {
+      max-height: 360px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #f1f5f9;
+      padding: 0.6rem 0.75rem;
+      text-align: right;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-muted);
+    }
+
+    thead th:first-child { text-align: center; }
+
+    tbody td {
+      padding: 0.5rem 0.75rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td:first-child {
+      text-align: center;
+      font-weight: 600;
+    }
+
+    tbody tr:hover { background: #f8fafc; }
+
+    tbody tr.break-even-row {
+      background: #d1fae5;
+      font-weight: 700;
+    }
+
+    tbody tr.break-even-row td { border-bottom-color: #6ee7b7; }
+
+    .formula-section {
+      margin-top: 1.5rem;
+    }
+
+    .formula-box {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'Cambria Math', 'Latin Modern Math', Georgia, serif;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .formula-box .formula-title {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    footer a { color: var(--primary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Break-Even Analysis</h1>
+  <p>Aircraft Fleet Modernization &mdash; SkyAir Economic Decision Tool</p>
+</header>
+
+<div class="container">
+  <div class="grid">
+
+    <!-- LEFT: Parameters -->
+    <div class="card" id="params-card">
+      <h2>Parameters</h2>
+
+      <div class="param-group">
+        <label>Annual Revenue per Aircraft <span class="unit">M USD</span></label>
+        <div class="param-row">
+          <input type="range" id="revenue" min="5" max="50" step="0.5" value="15">
+          <span class="val" id="revenue-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Fuel Savings <span class="unit">%</span></label>
+        <div class="param-row">
+          <input type="range" id="fuelSavings" min="0" max="40" step="1" value="20">
+          <span class="val" id="fuelSavings-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Maintenance Cost (Old Fleet) <span class="unit">M USD / aircraft / yr</span></label>
+        <div class="param-row">
+          <input type="range" id="maintCost" min="0.5" max="8" step="0.1" value="2">
+          <span class="val" id="maintCost-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Maintenance Cost Growth Rate <span class="unit">%</span></label>
+        <div class="param-row">
+          <input type="range" id="maintGrowth" min="0" max="15" step="0.5" value="5">
+          <span class="val" id="maintGrowth-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Discount Rate <span class="unit">%</span></label>
+        <div class="param-row">
+          <input type="range" id="discountRate" min="1" max="20" step="0.5" value="8">
+          <span class="val" id="discountRate-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Number of Aircraft</label>
+        <div class="param-row">
+          <input type="range" id="numAircraft" min="1" max="200" step="1" value="50">
+          <span class="val" id="numAircraft-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>New Aircraft Cost <span class="unit">M USD each</span></label>
+        <div class="param-row">
+          <input type="range" id="aircraftCost" min="30" max="180" step="1" value="120">
+          <span class="val" id="aircraftCost-val"></span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Max Analysis Horizon <span class="unit">years</span></label>
+        <div class="param-row">
+          <input type="range" id="maxYears" min="10" max="60" step="1" value="40">
+          <span class="val" id="maxYears-val"></span>
+        </div>
+      </div>
+
+      <div class="formula-section">
+        <div class="formula-box">
+          <div class="formula-title">Annual Savings per Aircraft</div>
+          C<sub>t</sub> = C<sub>fuel</sub> + C<sub>maint</sub> &times; (1 + g)<sup>t&minus;1</sup>
+        </div>
+        <div class="formula-box" style="margin-top:0.5rem;">
+          <div class="formula-title">Break-Even Condition</div>
+          &sum;<sub>t=1</sub><sup>T</sup>
+          &nbsp;N &times; C<sub>t</sub> / (1 + r)<sup>t</sup>
+          &ge; N &times; P
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <!-- Banner -->
+      <div id="result-banner" class="result-banner found"></div>
+
+      <!-- Summary -->
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="metric" id="metric-investment">—</div>
+          <div class="metric-label">Total Investment</div>
+        </div>
+        <div class="summary-card">
+          <div class="metric" id="metric-cumulative">—</div>
+          <div class="metric-label">Cumulative Savings (at horizon)</div>
+        </div>
+        <div class="summary-card">
+          <div class="metric" id="metric-npv">—</div>
+          <div class="metric-label">NPV at Horizon</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="chart-wrap">
+          <canvas id="chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <h2>Year-by-Year Breakdown</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Savings (M)</th>
+                <th>Discounted (M)</th>
+                <th>Cumulative (M)</th>
+                <th>Investment (M)</th>
+                <th>Gap (M)</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  ENG3004 &mdash; Economic Decision-Making in Aircraft Fleet Modernization
+  &nbsp;|&nbsp;
+  <a href="https://github.com/qmohsu/ENG3004-Economic-Dimension" target="_blank">GitHub Repository</a>
+</footer>
+
+<script>
+const sliders = {
+  revenue:      { el: null, valEl: null, fmt: v => `$${v}M` },
+  fuelSavings:  { el: null, valEl: null, fmt: v => `${v}%` },
+  maintCost:    { el: null, valEl: null, fmt: v => `$${v}M` },
+  maintGrowth:  { el: null, valEl: null, fmt: v => `${v}%` },
+  discountRate: { el: null, valEl: null, fmt: v => `${v}%` },
+  numAircraft:  { el: null, valEl: null, fmt: v => v },
+  aircraftCost: { el: null, valEl: null, fmt: v => `$${v}M` },
+  maxYears:     { el: null, valEl: null, fmt: v => `${v} yr` },
+};
+
+let chart = null;
+
+function init() {
+  for (const key of Object.keys(sliders)) {
+    sliders[key].el = document.getElementById(key);
+    sliders[key].valEl = document.getElementById(key + '-val');
+    sliders[key].el.addEventListener('input', onParamChange);
+  }
+  updateDisplay();
+  compute();
+}
+
+function onParamChange() {
+  updateDisplay();
+  compute();
+}
+
+function updateDisplay() {
+  for (const key of Object.keys(sliders)) {
+    const s = sliders[key];
+    s.valEl.textContent = s.fmt(s.el.value);
+  }
+}
+
+function getVal(key) {
+  return parseFloat(sliders[key].el.value);
+}
+
+function fmtM(v) {
+  if (Math.abs(v) >= 1000) return (v / 1000).toFixed(2) + 'B';
+  return v.toFixed(2) + 'M';
+}
+
+function compute() {
+  const revenue      = getVal('revenue');
+  const fuelPct      = getVal('fuelSavings') / 100;
+  const C2           = getVal('maintCost');
+  const g            = getVal('maintGrowth') / 100;
+  const r            = getVal('discountRate') / 100;
+  const N            = getVal('numAircraft');
+  const P            = getVal('aircraftCost');
+  const maxY         = getVal('maxYears');
+
+  const C1 = fuelPct * revenue;
+  const C0 = N * P;
+
+  const years = [];
+  const savings = [];
+  const discounted = [];
+  const cumulative = [];
+  let cumSum = 0;
+  let breakEvenYear = null;
+
+  for (let t = 1; t <= maxY; t++) {
+    const Ct = N * (C1 + C2 * Math.pow(1 + g, t - 1));
+    const disc = Ct / Math.pow(1 + r, t);
+    cumSum += disc;
+
+    years.push(t);
+    savings.push(Ct);
+    discounted.push(disc);
+    cumulative.push(cumSum);
+
+    if (breakEvenYear === null && cumSum >= C0) {
+      breakEvenYear = t;
+    }
+  }
+
+  const banner = document.getElementById('result-banner');
+  if (breakEvenYear !== null) {
+    banner.className = 'result-banner found';
+    banner.innerHTML = `<div class="big">Year ${breakEvenYear}</div><div class="sub">Break-even reached &mdash; cumulative discounted savings exceed the $${fmtM(C0)} investment</div>`;
+  } else {
+    banner.className = 'result-banner not-found';
+    banner.innerHTML = `<div class="big">No Break-Even</div><div class="sub">Cumulative discounted savings do not reach $${fmtM(C0)} within ${maxY} years</div>`;
+  }
+
+  document.getElementById('metric-investment').textContent = '$' + fmtM(C0);
+  document.getElementById('metric-cumulative').textContent = '$' + fmtM(cumSum);
+  const npv = cumSum - C0;
+  const npvEl = document.getElementById('metric-npv');
+  npvEl.textContent = (npv >= 0 ? '+$' : '-$') + fmtM(Math.abs(npv));
+  npvEl.style.color = npv >= 0 ? '#10b981' : '#ef4444';
+
+  renderChart(years, cumulative, C0, breakEvenYear);
+  renderTable(years, savings, discounted, cumulative, C0, breakEvenYear);
+}
+
+function renderChart(years, cumulative, C0, breakEvenYear) {
+  const ctx = document.getElementById('chart');
+
+  const investmentLine = years.map(() => C0);
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: years.map(y => `Yr ${y}`),
+      datasets: [
+        {
+          label: 'Cumulative Discounted Savings',
+          data: cumulative,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,0.08)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: years.length > 30 ? 0 : 3,
+          pointBackgroundColor: '#2563eb',
+          borderWidth: 2.5,
+        },
+        {
+          label: 'Initial Investment',
+          data: investmentLine,
+          borderColor: '#ef4444',
+          borderDash: [8, 4],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}M`,
+          },
+        },
+        annotation: breakEvenYear ? {
+          annotations: {
+            line1: {
+              type: 'line',
+              xMin: breakEvenYear - 1,
+              xMax: breakEvenYear - 1,
+              borderColor: '#10b981',
+              borderWidth: 2,
+              borderDash: [4, 4],
+              label: {
+                display: true,
+                content: `Break-even: Year ${breakEvenYear}`,
+                position: 'start',
+              },
+            },
+          },
+        } : {},
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Year' },
+          grid: { display: false },
+        },
+        y: {
+          title: { display: true, text: 'Million USD' },
+          beginAtZero: true,
+          grid: { color: '#e2e8f0' },
+        },
+      },
+    },
+  });
+}
+
+function renderTable(years, savings, discounted, cumulative, C0, breakEvenYear) {
+  const tbody = document.getElementById('table-body');
+  let html = '';
+  for (let i = 0; i < years.length; i++) {
+    const t = years[i];
+    const gap = cumulative[i] - C0;
+    const isBE = t === breakEvenYear;
+    html += `<tr class="${isBE ? 'break-even-row' : ''}">
+      <td>${t}${isBE ? ' &#9733;' : ''}</td>
+      <td>${savings[i].toFixed(2)}</td>
+      <td>${discounted[i].toFixed(2)}</td>
+      <td>${cumulative[i].toFixed(2)}</td>
+      <td>${C0.toFixed(2)}</td>
+      <td style="color:${gap >= 0 ? '#10b981' : '#ef4444'}">${gap >= 0 ? '+' : ''}${gap.toFixed(2)}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Improved Break-Even Analysis — Professional Capital Budgeting</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #dbeafe;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%); color: white; padding: 2rem 1.5rem; text-align: center; }
+    header h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 0.25rem; }
+    header p { opacity: 0.85; font-size: 0.95rem; }
+    header .badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.2rem 0.8rem; font-size: 0.75rem; margin-top: 0.5rem; }
+
+    .container { max-width: 1300px; margin: 0 auto; padding: 1.5rem; }
+
+    /* Verdict banner */
+    .verdict-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .verdict-card { border-radius: var(--radius); padding: 1.25rem; text-align: center; }
+    .verdict-card.reject { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 1px solid #fca5a5; color: #991b1b; }
+    .verdict-card.accept { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid #6ee7b7; color: #065f46; }
+    .verdict-card .big { font-size: 2rem; font-weight: 800; line-height: 1.2; }
+    .verdict-card .sub { font-size: 0.82rem; margin-top: 0.2rem; opacity: 0.8; }
+    @media (max-width: 700px) { .verdict-bar { grid-template-columns: 1fr; } }
+
+    /* Metric cards */
+    .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 0.5rem; text-align: center; }
+    .metric-card .mv { font-size: 1.1rem; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
+    .metric-card .mv.good { color: var(--success); }
+    .metric-card .mv.bad { color: var(--danger); }
+    .metric-card .ml { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-top: 0.15rem; }
+    @media (max-width: 900px) { .metrics-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* Main grid */
+    .main-grid { display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem; align-items: start; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card h2 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 1rem; }
+    .card h3 { font-size: 0.78rem; font-weight: 700; color: var(--text); margin: 1rem 0 0.5rem; }
+
+    /* Sliders */
+    .pg { margin-bottom: 0.8rem; }
+    .pg label { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .pg label .u { font-weight: 400; color: var(--muted); font-size: 0.72rem; }
+    .pr { display: flex; align-items: center; gap: 0.4rem; }
+    .pr input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; height: 6px; }
+    .pr .v { min-width: 58px; text-align: right; font-weight: 700; font-size: 0.82rem; color: var(--primary); font-variant-numeric: tabular-nums; }
+
+    /* Charts */
+    .chart-wrap { position: relative; width: 100%; height: 340px; }
+    .chart-wrap.tall { height: 400px; }
+
+    /* Tables */
+    .tw { max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+    thead th { position: sticky; top: 0; background: #f1f5f9; padding: 0.5rem 0.6rem; text-align: right; font-weight: 700; border-bottom: 2px solid var(--border); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+    thead th:first-child { text-align: center; }
+    tbody td { padding: 0.4rem 0.6rem; text-align: right; border-bottom: 1px solid var(--border); }
+    tbody td:first-child { text-align: center; font-weight: 600; }
+    tbody tr:hover { background: #f8fafc; }
+
+    /* Section grid */
+    .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 900px) { .section-grid { grid-template-columns: 1fr; } }
+
+    /* Formulas */
+    .formula { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-family: 'Cambria Math', Georgia, serif; font-size: 0.9rem; line-height: 1.8; margin: 0.5rem 0; overflow-x: auto; }
+    .formula .ft { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 0.3rem; }
+
+    /* Comparison table */
+    .cmp-table { width: 100%; font-size: 0.8rem; }
+    .cmp-table th { background: #f1f5f9; text-align: left; padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+    .cmp-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .cmp-table td:nth-child(2), .cmp-table td:nth-child(3) { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cmp-table .bad { color: var(--danger); }
+    .cmp-table .good { color: var(--success); }
+
+    /* MC histogram mini */
+    .mc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .mc-stat { background: var(--bg); border-radius: 8px; padding: 0.5rem; text-align: center; }
+    .mc-stat .msv { font-weight: 800; font-size: 1rem; }
+    .mc-stat .msl { font-size: 0.65rem; text-transform: uppercase; color: var(--muted); }
+
+    footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.78rem; }
+    footer a { color: var(--primary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 1.5rem; font-size: 0.75rem; }
+    .ref-grid a { color: #6366f1; text-decoration: none; border-bottom: 1px dotted #6366f1; }
+    .ref-grid a:hover { border-bottom-style: solid; }
+    @media (max-width: 700px) { .ref-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Improved Break-Even Analysis</h1>
+  <p>Professional Capital Budgeting &mdash; Aircraft Fleet Modernization</p>
+  <div class="badge">CAPM &bull; WACC &bull; MACRS &bull; FCFF &bull; IRR &bull; MIRR &bull; Monte Carlo</div>
+</header>
+
+<div class="container">
+
+  <!-- VERDICT BANNER -->
+  <div class="verdict-bar">
+    <div id="verdict-naive" class="verdict-card accept"></div>
+    <div id="verdict-improved" class="verdict-card reject"></div>
+  </div>
+
+  <!-- KEY METRICS -->
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="mv" id="m-npv">—</div><div class="ml">NPV</div></div>
+    <div class="metric-card"><div class="mv" id="m-irr">—</div><div class="ml">IRR</div></div>
+    <div class="metric-card"><div class="mv" id="m-mirr">—</div><div class="ml">MIRR</div></div>
+    <div class="metric-card"><div class="mv" id="m-pi">—</div><div class="ml">Profitability Index</div></div>
+    <div class="metric-card"><div class="mv" id="m-wacc">—</div><div class="ml">WACC (Hurdle)</div></div>
+    <div class="metric-card"><div class="mv" id="m-ploss">—</div><div class="ml">P(Loss) MC</div></div>
+  </div>
+
+  <!-- MAIN GRID: Params + Chart -->
+  <div class="main-grid">
+    <div>
+      <!-- FLEET PARAMS -->
+      <div class="card">
+        <h2>Fleet &amp; Savings</h2>
+        <div class="pg"><label>Aircraft Count<span class="u"></span></label><div class="pr"><input type="range" id="s-num" min="10" max="200" step="5" value="50"><span class="v" id="v-num"></span></div></div>
+        <div class="pg"><label>Cost per Aircraft<span class="u">M USD</span></label><div class="pr"><input type="range" id="s-cost" min="40" max="180" step="1" value="120"><span class="v" id="v-cost"></span></div></div>
+        <div class="pg"><label>Annual Revenue / AC<span class="u">M USD</span></label><div class="pr"><input type="range" id="s-rev" min="5" max="50" step="0.5" value="15"><span class="v" id="v-rev"></span></div></div>
+        <div class="pg"><label>Fuel Savings<span class="u">%</span></label><div class="pr"><input type="range" id="s-fuel" min="5" max="35" step="1" value="20"><span class="v" id="v-fuel"></span></div></div>
+        <div class="pg"><label>Maint. Savings Base<span class="u">M USD / AC</span></label><div class="pr"><input type="range" id="s-maint" min="0.5" max="5" step="0.1" value="2"><span class="v" id="v-maint"></span></div></div>
+        <div class="pg"><label>Revenue Growth<span class="u">% / yr</span></label><div class="pr"><input type="range" id="s-revg" min="0" max="8" step="0.5" value="3"><span class="v" id="v-revg"></span></div></div>
+        <div class="pg"><label>Salvage Value<span class="u">% of cost</span></label><div class="pr"><input type="range" id="s-salv" min="0" max="35" step="1" value="15"><span class="v" id="v-salv"></span></div></div>
+        <div class="pg"><label>Project Life<span class="u">years</span></label><div class="pr"><input type="range" id="s-life" min="10" max="35" step="1" value="25"><span class="v" id="v-life"></span></div></div>
+      </div>
+
+      <!-- CAPM / WACC -->
+      <div class="card">
+        <h2>CAPM &amp; WACC</h2>
+        <div class="pg"><label>Risk-Free Rate R<sub>f</sub><span class="u">%</span></label><div class="pr"><input type="range" id="s-rf" min="1" max="8" step="0.25" value="4.25"><span class="v" id="v-rf"></span></div></div>
+        <div class="pg"><label>Equity Beta &beta;<span class="u"></span></label><div class="pr"><input type="range" id="s-beta" min="0.5" max="2.5" step="0.05" value="1.30"><span class="v" id="v-beta"></span></div></div>
+        <div class="pg"><label>Equity Risk Premium<span class="u">%</span></label><div class="pr"><input type="range" id="s-erp" min="3" max="9" step="0.25" value="5.5"><span class="v" id="v-erp"></span></div></div>
+        <div class="pg"><label>Cost of Debt R<sub>d</sub><span class="u">%</span></label><div class="pr"><input type="range" id="s-rd" min="2" max="10" step="0.25" value="4.5"><span class="v" id="v-rd"></span></div></div>
+        <div class="pg"><label>Debt Ratio D/V<span class="u">%</span></label><div class="pr"><input type="range" id="s-dv" min="20" max="80" step="5" value="60"><span class="v" id="v-dv"></span></div></div>
+        <div class="pg"><label>Corporate Tax Rate<span class="u">%</span></label><div class="pr"><input type="range" id="s-tax" min="10" max="35" step="1" value="21"><span class="v" id="v-tax"></span></div></div>
+
+        <div class="formula">
+          <div class="ft">CAPM &rarr; WACC</div>
+          R<sub>e</sub> = R<sub>f</sub> + &beta;(R<sub>m</sub>&minus;R<sub>f</sub>) = <strong id="f-re">—</strong><br>
+          WACC = <sup>E</sup>&frasl;<sub>V</sub>&middot;R<sub>e</sub> + <sup>D</sup>&frasl;<sub>V</sub>&middot;R<sub>d</sub>&middot;(1&minus;T<sub>c</sub>) = <strong id="f-wacc">—</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Main chart + comparison -->
+    <div>
+      <div class="card">
+        <h2>Cumulative NPV &mdash; Naive vs Improved</h2>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>Naive vs Improved Comparison</h2>
+        <table class="cmp-table">
+          <thead><tr><th>Metric</th><th>Naive Model</th><th>Improved Model</th></tr></thead>
+          <tbody id="cmp-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL-WIDTH SECTIONS -->
+  <div class="section-grid">
+
+    <!-- MACRS -->
+    <div class="card">
+      <h2>MACRS 7-Year Depreciation Tax Shield</h2>
+      <div class="chart-wrap"><canvas id="depChart"></canvas></div>
+    </div>
+
+    <!-- Bathtub Maintenance -->
+    <div class="card">
+      <h2>Bathtub Maintenance Model</h2>
+      <div class="chart-wrap"><canvas id="maintChart"></canvas></div>
+    </div>
+
+    <!-- FCFF Table -->
+    <div class="card">
+      <h2>FCFF Build-Up ($M)</h2>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Year</th><th>Gross Savings</th><th>After-Tax</th><th>Tax Shield</th><th>Check CapEx</th><th>&Delta;NWC</th><th>FCFF</th><th>PV(FCFF)</th><th>Cum. PV</th></tr></thead>
+          <tbody id="fcff-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Financing Comparison -->
+    <div class="card">
+      <h2>Financing: Purchase vs Lease</h2>
+      <div id="fin-summary" style="margin-bottom:0.75rem;"></div>
+      <div class="chart-wrap"><canvas id="finChart"></canvas></div>
+    </div>
+
+    <!-- Sensitivity Tornado -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <h2>Sensitivity Analysis &mdash; Tornado Diagram (&pm;20%)</h2>
+      <div class="chart-wrap tall"><canvas id="tornadoChart"></canvas></div>
+    </div>
+
+    <!-- Monte Carlo -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <h2>Monte Carlo Simulation (5,000 iterations)</h2>
+      <div class="mc-stats">
+        <div class="mc-stat"><div class="msv" id="mc-mean">—</div><div class="msl">Mean NPV</div></div>
+        <div class="mc-stat"><div class="msv" id="mc-med">—</div><div class="msl">Median NPV</div></div>
+        <div class="mc-stat"><div class="msv" id="mc-p5">—</div><div class="msl">5th Percentile</div></div>
+        <div class="mc-stat"><div class="msv" id="mc-p95">—</div><div class="msl">95th Percentile</div></div>
+        <div class="mc-stat"><div class="msv bad" id="mc-ploss">—</div><div class="msl">P(NPV &lt; 0)</div></div>
+        <div class="mc-stat"><div class="msv" id="mc-std">—</div><div class="msl">Std Deviation</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="mcChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- References -->
+  <div class="card" style="margin-top:0.5rem;">
+    <h2>References</h2>
+    <div class="ref-grid">
+      <div>1. <a href="https://pages.stern.nyu.edu/~adamodar/pdfiles/papers/costofcapital.pdf" target="_blank">Damodaran &mdash; Cost of Capital</a></div>
+      <div>2. <a href="https://www.investopedia.com/terms/c/capm.asp" target="_blank">Investopedia &mdash; CAPM</a></div>
+      <div>3. <a href="https://nbaa.org/flight-department-administration/tax-issues/depreciation/depreciation-schedule-for-business-aircraft/" target="_blank">NBAA &mdash; Aircraft Depreciation</a></div>
+      <div>4. <a href="https://www.irs.gov/pub/irs-pdf/p946.pdf" target="_blank">IRS Publication 946</a></div>
+      <div>5. <a href="https://www.investopedia.com/terms/m/macrs.asp" target="_blank">Investopedia &mdash; MACRS</a></div>
+      <div>6. <a href="https://www.iata.org/contentassets/4a4b100c43794398baf73dcea6b5ad42/airline-disclosure-guide-aircraft-acquisition.pdf" target="_blank">IATA &mdash; Aircraft Acquisition Disclosure</a></div>
+      <div>7. <a href="https://www.investopedia.com/terms/f/freecashflowfirm.asp" target="_blank">Investopedia &mdash; FCFF</a></div>
+      <div>8. <a href="https://corporatefinanceinstitute.com/resources/financial-modeling/free-cash-flow-to-firm-fcff" target="_blank">CFI &mdash; FCFF Formula</a></div>
+      <div>9. <a href="https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2025/capital-investments-and-capital-allocation" target="_blank">CFA Institute &mdash; Capital Investments</a></div>
+      <div>10. <a href="https://www.investopedia.com/terms/m/mirr.asp" target="_blank">Investopedia &mdash; MIRR</a></div>
+      <div>11. <a href="https://www.iata.org/contentassets/bf8ca67c8bcd4358b3d004b0d6d0916f/mcaa-1sted-2018.pdf" target="_blank">IATA &mdash; Aging Aircraft Costs</a></div>
+      <div>12. <a href="https://www.investopedia.com/terms/s/sensitivityanalysis.asp" target="_blank">Investopedia &mdash; Sensitivity Analysis</a></div>
+      <div>13. <a href="https://www.iata.org/en/publications/manuals/international-aircraft-financing" target="_blank">IATA &mdash; Aircraft Financing</a></div>
+      <div>14. <a href="https://corporatefinanceinstitute.com/resources/financial-modeling/wacc-calculator" target="_blank">CFI &mdash; WACC Calculator</a></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  ENG3004 &mdash; Economic Decision-Making in Aircraft Fleet Modernization &nbsp;|&nbsp;
+  <a href="index.html">Naive Model</a> &nbsp;|&nbsp;
+  <a href="https://github.com/qmohsu/ENG3004-Economic-Dimension" target="_blank">GitHub</a>
+</footer>
+
+<script>
+const MACRS = [0.1429, 0.2449, 0.1749, 0.1249, 0.0893, 0.0892, 0.0893, 0.0446];
+const C_CHECK_COST = 2.0, D_CHECK_COST = 8.0, C_INT = 7, D_INT = 12;
+const G1 = 0.03, NWC_PCT = 0.005;
+const LOAN_TERM = 15, LRF = 0.008;
+
+const S = {};
+const sliderDefs = [
+  ['s-num','v-num',v=>`${v}`],['s-cost','v-cost',v=>`$${v}M`],['s-rev','v-rev',v=>`$${v}M`],
+  ['s-fuel','v-fuel',v=>`${v}%`],['s-maint','v-maint',v=>`$${v}M`],['s-revg','v-revg',v=>`${v}%`],
+  ['s-salv','v-salv',v=>`${v}%`],['s-life','v-life',v=>`${v} yr`],
+  ['s-rf','v-rf',v=>`${v}%`],['s-beta','v-beta',v=>`${v}`],['s-erp','v-erp',v=>`${v}%`],
+  ['s-rd','v-rd',v=>`${v}%`],['s-dv','v-dv',v=>`${v}%`],['s-tax','v-tax',v=>`${v}%`],
+];
+
+let charts = {};
+
+function gv(id) { return parseFloat(document.getElementById(id).value); }
+function fmtM(v) { return Math.abs(v) >= 1000 ? (v/1000).toFixed(1)+'B' : v.toFixed(0)+'M'; }
+function fmtMs(v) { return (v>=0?'+':'')+' $'+fmtM(Math.abs(v)); }
+
+function computeWACC(rf,beta,erp,rd,dv,tax) {
+  const re = rf + beta * erp;
+  const ev = 1 - dv;
+  return { re, wacc: ev * re + dv * rd * (1 - tax) };
+}
+
+function maintSavings(t, base, g2) {
+  if (t <= 5) return base;
+  if (t <= 12) return base * Math.pow(1+G1, t-5);
+  return base * Math.pow(1+G1, 7) * Math.pow(1+g2, t-12);
+}
+
+function checkCapex(t) {
+  let c = 0;
+  if (t > 1 && t % C_INT === 0) c += C_CHECK_COST;
+  if (t > 1 && t % D_INT === 0) c += D_CHECK_COST;
+  return c;
+}
+
+function computeModel(p) {
+  const { num, cost, rev0, fuelPct, maintBase, revGrowth, salvPct, life, rf, beta, erp, rd, dv, tax } = p;
+  const c0 = num * cost;
+  const { re, wacc } = computeWACC(rf, beta, erp, rd, dv, tax);
+  const g2 = 0.09;
+
+  const dep = new Array(life).fill(0);
+  MACRS.forEach((r,i) => { if (i < life) dep[i] = c0 * r; });
+  const ts = dep.map(d => d * tax);
+
+  const years = [], revArr = [], fuelArr = [], maintArr = [], chkArr = [];
+  const grossArr = [], atArr = [], nwcArr = [], fcffArr = [], pvArr = [], cumArr = [];
+
+  let prevNwc = 0, cumPv = 0;
+
+  const sv = num * cost * salvPct;
+  const bv = c0 - dep.reduce((a,b)=>a+b,0);
+  const stax = Math.max(0, (sv - bv) * tax);
+  const ns = sv - stax;
+
+  for (let t = 1; t <= life; t++) {
+    const i = t - 1;
+    const revenue = rev0 * Math.pow(1 + revGrowth, t);
+    const fuel = fuelPct * revenue;
+    const maint = maintSavings(t, maintBase, g2);
+    const chk = checkCapex(t);
+
+    const gross = num * (fuel + maint);
+    const at = gross * (1 - tax);
+    const incRev = num * revenue;
+    const nwc = NWC_PCT * incRev;
+    const dnwc = t === 1 ? nwc : nwc - prevNwc;
+    prevNwc = nwc;
+
+    let fcff = at + ts[i] - num * chk - dnwc;
+    if (t === life) fcff += ns;
+
+    const df = Math.pow(1 + wacc, t);
+    const pv = fcff / df;
+    cumPv += pv;
+
+    years.push(t); revArr.push(revenue); fuelArr.push(fuel); maintArr.push(maint);
+    chkArr.push(chk); grossArr.push(gross); atArr.push(at); nwcArr.push(dnwc);
+    fcffArr.push(fcff); pvArr.push(pv); cumArr.push(cumPv);
+  }
+
+  const npv = -c0 + cumPv;
+
+  // IRR via bisection
+  const cfs = [-c0, ...fcffArr];
+  function npvAtRate(r) { return cfs.reduce((s,cf,i) => s + cf / Math.pow(1+r, i), 0); }
+  let irrLo = -0.05, irrHi = 1.0, irr = 0;
+  for (let iter = 0; iter < 100; iter++) {
+    irr = (irrLo + irrHi) / 2;
+    if (npvAtRate(irr) > 0) irrLo = irr; else irrHi = irr;
+  }
+
+  // MIRR
+  const n = cfs.length - 1;
+  let fvPos = 0, pvNeg = 0;
+  cfs.forEach((cf, i) => {
+    if (cf > 0) fvPos += cf * Math.pow(1 + wacc, n - i);
+    if (cf < 0) pvNeg += cf / Math.pow(1 + rd, i);
+  });
+  const mirr = Math.pow(fvPos / Math.abs(pvNeg), 1/n) - 1;
+
+  const pi = cumPv / c0;
+
+  let beYear = null;
+  for (let i = 0; i < cumArr.length; i++) {
+    if (cumArr[i] >= c0) { beYear = i + 1; break; }
+  }
+
+  return { c0, wacc, re, npv, irr, mirr, pi, beYear, years, dep, ts, grossArr, atArr, nwcArr, chkArr, fcffArr, pvArr, cumArr, ns, maintArr, fuelArr, num, life, sv, tax };
+}
+
+function computeNaive(p) {
+  const { num, cost, rev0, fuelPct, maintBase, life } = p;
+  const c0 = num * cost;
+  const c1 = fuelPct * rev0;
+  const g = 0.05, r = 0.08;
+  let cum = 0, beYear = null;
+  const cumArr = [];
+  for (let t = 1; t <= life; t++) {
+    const ct = num * (c1 + maintBase * Math.pow(1+g, t-1));
+    cum += ct / Math.pow(1+r, t);
+    cumArr.push(cum);
+    if (beYear === null && cum >= c0) beYear = t;
+  }
+  return { c0, npv: cum - c0, beYear, cumArr };
+}
+
+function getParams() {
+  return {
+    num: gv('s-num'), cost: gv('s-cost'), rev0: gv('s-rev'),
+    fuelPct: gv('s-fuel')/100, maintBase: gv('s-maint'), revGrowth: gv('s-revg')/100,
+    salvPct: gv('s-salv')/100, life: gv('s-life'),
+    rf: gv('s-rf')/100, beta: gv('s-beta'), erp: gv('s-erp')/100,
+    rd: gv('s-rd')/100, dv: gv('s-dv')/100, tax: gv('s-tax')/100,
+  };
+}
+
+function runSensitivity(baseP) {
+  const swing = 0.20;
+  const paramList = [
+    ['Aircraft Cost', 'cost'], ['Fuel Savings %', 'fuelPct'], ['Beta', 'beta'],
+    ['Cost of Debt', 'rd'], ['Revenue Growth', 'revGrowth'], ['Maint. Base', 'maintBase'],
+    ['Salvage %', 'salvPct'], ['Tax Rate', 'tax'], ['Debt Ratio', 'dv'],
+  ];
+  const baseNpv = computeModel(baseP).npv;
+  const results = paramList.map(([label, key]) => {
+    const lo = {...baseP}; lo[key] = baseP[key] * (1-swing);
+    const hi = {...baseP}; hi[key] = baseP[key] * (1+swing);
+    return { label, lo: computeModel(lo).npv, hi: computeModel(hi).npv };
+  });
+  results.sort((a,b) => Math.abs(a.hi - a.lo) - Math.abs(b.hi - b.lo));
+  return { baseNpv, results };
+}
+
+function boxMuller() {
+  let u1, u2;
+  do { u1 = Math.random(); } while (u1 === 0);
+  u2 = Math.random();
+  return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+}
+
+function runMonteCarlo(baseP, n=5000) {
+  const npvs = [];
+  for (let i = 0; i < n; i++) {
+    const p = {...baseP};
+    p.cost = triRand(96, 120, 150);
+    p.fuelPct = clamp(baseP.fuelPct + boxMuller()*0.03, 0.05, 0.35);
+    p.maintBase = clamp(baseP.maintBase + boxMuller()*0.4, 0.5, 4);
+    p.revGrowth = baseP.revGrowth + boxMuller()*0.01;
+    p.beta = clamp(baseP.beta + boxMuller()*0.2, 0.5, 2.5);
+    p.rf = baseP.rf + boxMuller()*0.005;
+    p.rd = baseP.rd + boxMuller()*0.005;
+    p.salvPct = 0.08 + Math.random()*0.17;
+    npvs.push(computeModel(p).npv);
+  }
+  npvs.sort((a,b)=>a-b);
+  const mean = npvs.reduce((a,b)=>a+b,0)/n;
+  const med = npvs[Math.floor(n/2)];
+  const std = Math.sqrt(npvs.reduce((s,v)=>s+(v-mean)**2,0)/n);
+  const p5 = npvs[Math.floor(n*0.05)];
+  const p95 = npvs[Math.floor(n*0.95)];
+  const ploss = npvs.filter(v=>v<0).length/n*100;
+  return { npvs, mean, med, std, p5, p95, ploss };
+}
+
+function triRand(a,b,c) {
+  const u = Math.random();
+  const fc = (b-a)/(c-a);
+  return u < fc ? a+Math.sqrt(u*(c-a)*(b-a)) : c-Math.sqrt((1-u)*(c-a)*(c-b));
+}
+function clamp(v,lo,hi) { return Math.max(lo,Math.min(hi,v)); }
+
+function update() {
+  sliderDefs.forEach(([sid,vid,fmt]) => {
+    const v = parseFloat(document.getElementById(sid).value);
+    document.getElementById(vid).textContent = fmt(v);
+  });
+
+  const p = getParams();
+  const m = computeModel(p);
+  const naive = computeNaive(p);
+
+  // WACC formula
+  document.getElementById('f-re').textContent = (m.re*100).toFixed(2)+'%';
+  document.getElementById('f-wacc').textContent = (m.wacc*100).toFixed(2)+'%';
+
+  // Verdict banners
+  const vn = document.getElementById('verdict-naive');
+  const vi = document.getElementById('verdict-improved');
+  if (naive.beYear) {
+    vn.className = 'verdict-card accept';
+    vn.innerHTML = `<div class="big">Year ${naive.beYear}</div><div class="sub">Naive model break-even (flat 8%, no tax/depreciation)</div>`;
+  } else {
+    vn.className = 'verdict-card reject';
+    vn.innerHTML = `<div class="big">No Break-Even</div><div class="sub">Naive model &mdash; never recovers within ${p.life} years</div>`;
+  }
+  if (m.beYear) {
+    vi.className = 'verdict-card accept';
+    vi.innerHTML = `<div class="big">Year ${m.beYear}</div><div class="sub">Improved model (WACC ${(m.wacc*100).toFixed(1)}%, FCFF, MACRS, salvage)</div>`;
+  } else {
+    vi.className = 'verdict-card reject';
+    vi.innerHTML = `<div class="big">No Break-Even</div><div class="sub">Improved model &mdash; NPV = $${fmtM(Math.abs(m.npv))} loss</div>`;
+  }
+
+  // Key metrics
+  const setM = (id, val, cls) => { const el = document.getElementById(id); el.textContent = val; el.className = 'mv ' + cls; };
+  setM('m-npv', '$'+fmtM(Math.abs(m.npv)), m.npv >= 0 ? 'good' : 'bad');
+  document.getElementById('m-npv').textContent = (m.npv>=0?'+$':'-$')+fmtM(Math.abs(m.npv));
+  setM('m-irr', (m.irr*100).toFixed(2)+'%', m.irr > m.wacc ? 'good' : 'bad');
+  setM('m-mirr', (m.mirr*100).toFixed(2)+'%', m.mirr > m.wacc ? 'good' : 'bad');
+  setM('m-pi', m.pi.toFixed(3), m.pi > 1 ? 'good' : 'bad');
+  setM('m-wacc', (m.wacc*100).toFixed(2)+'%', '');
+  document.getElementById('m-ploss').textContent = '...';
+
+  // Comparison table
+  const rows = [
+    ['Discount Rate', '8.00%', (m.wacc*100).toFixed(2)+'%'],
+    ['Rate Source', 'Assumed', 'CAPM → WACC'],
+    ['Depreciation', 'None', 'MACRS 7-yr'],
+    ['Tax on Savings', 'None', (p.tax*100).toFixed(0)+'% corp tax'],
+    ['Salvage Value', '$0M', '$'+fmtM(m.ns)],
+    ['Maint. Model', '5% flat growth', 'Bathtub + C/D checks'],
+    ['Revenue Growth', '0%', (p.revGrowth*100).toFixed(1)+'%/yr'],
+    ['NPV @ '+p.life+' yr', '$'+fmtM(Math.abs(naive.npv)), (m.npv>=0?'+$':'-$')+fmtM(Math.abs(m.npv))],
+    ['Break-Even', naive.beYear ? naive.beYear+' yr' : '>'+p.life+' yr', m.beYear ? m.beYear+' yr' : '>'+p.life+' yr'],
+    ['IRR', 'N/A', (m.irr*100).toFixed(2)+'%'],
+    ['MIRR', 'N/A', (m.mirr*100).toFixed(2)+'%'],
+    ['Profitability Index', 'N/A', m.pi.toFixed(3)],
+  ];
+  document.getElementById('cmp-body').innerHTML = rows.map(([label,nv,iv]) =>
+    `<tr><td>${label}</td><td>${nv}</td><td>${iv}</td></tr>`).join('');
+
+  renderMainChart(m, naive);
+  renderDepChart(m);
+  renderMaintChart(m);
+  renderFCFFTable(m);
+  renderFinancing(m, p);
+  renderTornado(p);
+
+  setTimeout(() => {
+    const mc = runMonteCarlo(p);
+    setM('m-ploss', mc.ploss.toFixed(1)+'%', mc.ploss > 50 ? 'bad' : 'good');
+    document.getElementById('mc-mean').textContent = '$'+fmtM(Math.abs(mc.mean)); document.getElementById('mc-mean').style.color = mc.mean>=0?'var(--success)':'var(--danger)';
+    document.getElementById('mc-med').textContent = '$'+fmtM(Math.abs(mc.med)); document.getElementById('mc-med').style.color = mc.med>=0?'var(--success)':'var(--danger)';
+    document.getElementById('mc-p5').textContent = '$'+fmtM(Math.abs(mc.p5)); document.getElementById('mc-p5').style.color = mc.p5>=0?'var(--success)':'var(--danger)';
+    document.getElementById('mc-p95').textContent = '$'+fmtM(Math.abs(mc.p95)); document.getElementById('mc-p95').style.color = mc.p95>=0?'var(--success)':'var(--danger)';
+    document.getElementById('mc-ploss').textContent = mc.ploss.toFixed(1)+'%';
+    document.getElementById('mc-std').textContent = '$'+fmtM(mc.std);
+    renderMCChart(mc);
+  }, 50);
+}
+
+function makeOrUpdate(key, ctx, cfg) {
+  if (charts[key]) charts[key].destroy();
+  charts[key] = new Chart(ctx, cfg);
+}
+
+function renderMainChart(m, naive) {
+  const labels = m.years.map(y=>'Yr '+y);
+  makeOrUpdate('main', document.getElementById('mainChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Improved (FCFF+WACC)', data: m.cumArr, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.06)', fill: true, tension: 0.3, pointRadius: m.life>30?0:2, borderWidth: 2.5 },
+        { label: 'Naive (flat 8%)', data: naive.cumArr, borderColor: '#ef4444', borderDash: [6,3], borderWidth: 2, pointRadius: 0, fill: false },
+        { label: 'Investment', data: m.years.map(()=>m.c0), borderColor: '#64748b', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0, fill: false },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+      scales:{x:{title:{display:true,text:'Year'},grid:{display:false}},y:{title:{display:true,text:'Million USD'},beginAtZero:true}},
+    },
+  });
+}
+
+function renderDepChart(m) {
+  const labels = [];
+  const depData = [], tsData = [];
+  MACRS.forEach((r,i) => {
+    if (i < m.life) {
+      labels.push('Yr '+(i+1));
+      depData.push(m.dep[i]);
+      tsData.push(m.ts[i]);
+    }
+  });
+  makeOrUpdate('dep', document.getElementById('depChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Depreciation', data: depData, backgroundColor: 'rgba(37,99,235,0.6)' },
+        { label: 'Tax Shield', data: tsData, backgroundColor: 'rgba(16,185,129,0.6)' },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{position:'top'}},
+      scales:{y:{title:{display:true,text:'$M'},beginAtZero:true}} },
+  });
+}
+
+function renderMaintChart(m) {
+  const labels = m.years.map(y=>'Yr '+y);
+  const chks = m.years.map(t => m.num * checkCapex(t));
+  makeOrUpdate('maint', document.getElementById('maintChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { type: 'line', label: 'Maint. Savings/AC ($M)', data: m.maintArr, borderColor: '#2563eb', pointRadius: m.life>30?0:2, borderWidth: 2, yAxisID: 'y', fill: false },
+        { label: 'Fleet Check CapEx ($M)', data: chks, backgroundColor: 'rgba(239,68,68,0.35)', yAxisID: 'y1' },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{position:'top'}},
+      scales:{
+        y:{position:'left',title:{display:true,text:'Savings/AC ($M)'},beginAtZero:true},
+        y1:{position:'right',title:{display:true,text:'Fleet CapEx ($M)'},beginAtZero:true,grid:{drawOnChartArea:false}},
+      }},
+  });
+}
+
+function renderFCFFTable(m) {
+  let html = '';
+  for (let i = 0; i < m.life; i++) {
+    html += `<tr>
+      <td>${m.years[i]}</td>
+      <td>${m.grossArr[i].toFixed(1)}</td>
+      <td>${m.atArr[i].toFixed(1)}</td>
+      <td>${m.ts[i].toFixed(1)}</td>
+      <td>${(m.num*checkCapex(m.years[i])).toFixed(1)}</td>
+      <td>${m.nwcArr[i].toFixed(1)}</td>
+      <td style="font-weight:700">${m.fcffArr[i].toFixed(1)}</td>
+      <td>${m.pvArr[i].toFixed(1)}</td>
+      <td style="color:${m.cumArr[i]>=m.c0?'var(--success)':'var(--danger)'}">${m.cumArr[i].toFixed(1)}</td>
+    </tr>`;
+  }
+  document.getElementById('fcff-body').innerHTML = html;
+}
+
+function renderFinancing(m, p) {
+  const debt = m.c0 * p.dv;
+  const equity = m.c0 * (1-p.dv);
+  const annualDS = debt * p.rd / (1 - Math.pow(1+p.rd, -LOAN_TERM));
+  const annualLease = m.num * p.cost * LRF * 12;
+  const netLease = annualLease * (1 - p.tax);
+
+  let remP = debt;
+  const intPay = new Array(m.life).fill(0);
+  for (let t = 0; t < Math.min(LOAN_TERM, m.life); t++) {
+    intPay[t] = remP * p.rd;
+    remP -= (annualDS - intPay[t]);
+  }
+  const intTS = intPay.map(ip => ip * p.tax);
+
+  const purchCum = [], leaseCum = [];
+  let pcum = 0, lcum = 0;
+  for (let i = 0; i < m.life; i++) {
+    const df = Math.pow(1 + m.wacc, i+1);
+    pcum += (m.fcffArr[i] + intTS[i]) / df;
+    const lfcff = m.atArr[i] - netLease - m.num*checkCapex(m.years[i]) - m.nwcArr[i];
+    lcum += lfcff / df;
+    purchCum.push(pcum);
+    leaseCum.push(lcum);
+  }
+  const npvP = -m.c0 + pcum;
+  const npvL = lcum;
+
+  const better = npvP > npvL ? 'Purchase' : 'Lease';
+  document.getElementById('fin-summary').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;text-align:center;font-size:0.82rem;">
+      <div style="background:#dbeafe;padding:0.6rem;border-radius:8px;"><strong>Purchase (${(p.dv*100).toFixed(0)}% debt)</strong><br>Debt Service: $${annualDS.toFixed(0)}M/yr &bull; NPV: <span style="color:${npvP>=0?'var(--success)':'var(--danger)'}">$${fmtM(Math.abs(npvP))}</span></div>
+      <div style="background:#fef3c7;padding:0.6rem;border-radius:8px;"><strong>Operating Lease</strong><br>Lease: $${annualLease.toFixed(0)}M/yr &bull; NPV: <span style="color:${npvL>=0?'var(--success)':'var(--danger)'}">$${fmtM(Math.abs(npvL))}</span></div>
+    </div>`;
+
+  const labels = m.years.map(y=>'Yr '+y);
+  makeOrUpdate('fin', document.getElementById('finChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Purchase Cum. PV', data: purchCum, borderColor: '#2563eb', borderWidth: 2, pointRadius: 0, fill: false },
+        { label: 'Lease Cum. PV', data: leaseCum, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0, fill: false },
+        { label: 'Investment', data: m.years.map(()=>m.c0), borderColor: '#64748b', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0, fill: false },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{position:'top'}},
+      scales:{x:{grid:{display:false}},y:{beginAtZero:true,title:{display:true,text:'$M'}}} },
+  });
+}
+
+function renderTornado(baseP) {
+  const { baseNpv, results } = runSensitivity(baseP);
+  const labels = results.map(r => r.label);
+  const loDeltas = results.map(r => r.lo - baseNpv);
+  const hiDeltas = results.map(r => r.hi - baseNpv);
+
+  makeOrUpdate('tornado', document.getElementById('tornadoChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: '−20%', data: loDeltas, backgroundColor: 'rgba(239,68,68,0.6)' },
+        { label: '+20%', data: hiDeltas, backgroundColor: 'rgba(37,99,235,0.6)' },
+      ],
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: 'NPV Change from Base ($'+fmtM(Math.abs(baseNpv))+') with \u00b120% Parameter Swing', font: { size: 13 } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + ctx.parsed.x.toFixed(0) + 'M' } },
+      },
+      scales: { x: { title: { display: true, text: 'ΔNPV ($M)' } } },
+    },
+  });
+}
+
+function renderMCChart(mc) {
+  const bins = 60;
+  const min = mc.npvs[0], max = mc.npvs[mc.npvs.length-1];
+  const bw = (max - min) / bins;
+  const counts = new Array(bins).fill(0);
+  const binLabels = [];
+  for (let i = 0; i < bins; i++) {
+    const lo = min + i * bw;
+    binLabels.push(lo.toFixed(0));
+    mc.npvs.forEach(v => { if (v >= lo && v < lo + bw) counts[i]++; });
+  }
+  const colors = binLabels.map(l => parseFloat(l) < 0 ? 'rgba(239,68,68,0.5)' : 'rgba(37,99,235,0.5)');
+
+  makeOrUpdate('mc', document.getElementById('mcChart'), {
+    type: 'bar',
+    data: {
+      labels: binLabels,
+      datasets: [{ label: 'NPV Frequency', data: counts, backgroundColor: colors, borderWidth: 0 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: `Monte Carlo NPV Distribution — P(loss) = ${mc.ploss.toFixed(1)}%`, font: { size: 13 } },
+      },
+      scales: {
+        x: { title: { display: true, text: 'NPV ($M)' }, ticks: { maxTicksLimit: 15, callback: v => '$'+binLabels[v]+'M' } },
+        y: { title: { display: true, text: 'Count' }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  sliderDefs.forEach(([sid]) => {
+    document.getElementById(sid).addEventListener('input', update);
+  });
+  update();
+});
+</script>
+
+</body>
+</html>
